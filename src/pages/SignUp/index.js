@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Platform } from 'react-native';
+import { View, Platform, ActivityIndicator } from 'react-native';
 
 import { AuthContext } from '../../contexts/auth'
 
@@ -15,9 +15,9 @@ const SignIn = () => {
   const [senha, setSenha] = useState('')
   const [nome, setNome] = useState('')
 
-  const { signUp } = useContext(AuthContext)
+  const { signUp, authLoading } = useContext(AuthContext)
 
-  function handleSignUp(){
+  function handleSignUp() {
     signUp(email, senha, nome)
 
   }
@@ -57,8 +57,14 @@ const SignIn = () => {
           />
         </AreaInput>
 
-        <SubmitButton onPress={handleSignUp}>
-          <SubmitText> Cadastrar </SubmitText>
+        <SubmitButton onPress={handleSignUp} disabled={authLoading === false ? false : true} >
+
+          {authLoading === true ?
+            (<ActivityIndicator size={30} color='#fff' />)
+            :
+            (<SubmitText> Cadastrar </SubmitText>)
+          }
+
         </SubmitButton>
 
 

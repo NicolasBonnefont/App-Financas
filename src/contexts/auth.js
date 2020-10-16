@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, ActivityIndicator } from 'react';
 import AsyncStorage from '@react-native-community/async-storage'
 import firebase from '../services/firebaseConnection'
 
@@ -9,6 +9,7 @@ export const AuthContext = createContext({})
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [authLoading, setAuthLoading] = useState(false)
 
   useEffect(() => {
     async function loadStorage() {
@@ -26,6 +27,7 @@ const AuthProvider = ({ children }) => {
 
   //cadstro usuario
   async function signUp(email, senha, nome) {
+    setAuthLoading(true)
     await firebase.auth().createUserWithEmailAndPassword(email, senha)
       .then(async (value) => {
         let uid = value.user.uid
@@ -39,10 +41,13 @@ const AuthProvider = ({ children }) => {
               nome: nome,
               email: value.user.email
             }
+            setAuthLoading(false)
             setUser(data)
             storageUser(data)
+            
           })
           .catch((error) => {
+            setAuthLoading(false)
             alert(error.code)
             setUser(null)
 
@@ -52,7 +57,7 @@ const AuthProvider = ({ children }) => {
 
   // login de usuario
   async function signIn(email, senha) {
-
+    setAuthLoading(true)
     await firebase.auth().signInWithEmailAndPassword(email, senha)
       .then(async (value) => {
         let uid = value.user.uid
@@ -64,11 +69,13 @@ const AuthProvider = ({ children }) => {
               nome: snapshot.val().nome,
               email: value.user.email
             }
+            setAuthLoading(false)
             setUser(data)
             storageUser(data)
           })
       })
       .catch((error) => {
+        setAuthLoading(false)
         alert(error.code)
 
       })
@@ -90,7 +97,7 @@ const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-     value={{ signed: !!user, user, signUp, signIn, signOut, loading }}>
+     value={{ signed: !!user, user, signUp, signIn, signOut, loading, authLoading }}>
       {children}
     </AuthContext.Provider>
   );
